@@ -44,15 +44,20 @@ export const useSpeechRecognition = (): SpeechRecognitionResult => {
       let interimTranscript = ''
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript
+        const transcriptPart = event.results[i][0].transcript
         if (event.results[i].isFinal) {
-          finalTranscript += transcript
+          finalTranscript += transcriptPart
         } else {
-          interimTranscript += transcript
+          interimTranscript += transcriptPart
         }
       }
 
-      setTranscript(finalTranscript || interimTranscript)
+      // Only update with final transcript or show interim for live display
+      if (finalTranscript) {
+        setTranscript(finalTranscript)
+      } else if (interimTranscript) {
+        setTranscript(interimTranscript)
+      }
     }
 
     recognition.onerror = (event: any) => {

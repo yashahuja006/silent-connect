@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 
 interface VoiceControlsProps {
@@ -14,18 +14,46 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
     error 
   } = useSpeechRecognition()
 
+  const lastSentTranscript = useRef<string>('')
+  const transcriptTimeout = useRef<number | null>(null)
+
   useEffect(() => {
-    // Send transcript to parent when speech is detected
-    if (transcript && transcript.trim()) {
-      onSpeechDetected(transcript.trim())
+    // Only send transcript when it's final and different from last sent
+    if (transcript && transcript.trim() && transcript !== lastSentTranscript.current) {
+      
+      // Clear any existing timeout
+      if (transcriptTimeout.current) {
+        clearTimeout(transcriptTimeout.current)
+      }
+      
+      // Set a timeout to send the transcript after user stops speaking
+      transcriptTimeout.current = window.setTimeout(() => {
+        const finalText = transcript.trim()
+        if (finalText && finalText !== lastSentTranscript.current) {
+          onSpeechDetected(finalText)
+          lastSentTranscript.current = finalText
+        }
+      }, 1500) // Wait 1.5 seconds after last change
+    }
+
+    return () => {
+      if (transcriptTimeout.current) {
+        clearTimeout(transcriptTimeout.current)
+      }
     }
   }, [transcript, onSpeechDetected])
 
   const handleMicrophoneToggle = () => {
     if (isListening) {
       stopListening()
+      // Reset when stopping
+      lastSentTranscript.current = ''
+      if (transcriptTimeout.current) {
+        clearTimeout(transcriptTimeout.current)
+      }
     } else {
       startListening()
+      lastSentTranscript.current = ''
     }
   }
 
@@ -73,10 +101,14 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
       </div>
 
       {/* Live Transcript Display */}
-      {transcript && (
+      {transcript && isListening && (
         <div className="mb-4" role="region" aria-label="Live speech transcript">
+          <div className="text-xs text-gray-400 mb-1">Live transcript:</div>
           <div className="subtitle-text" aria-live="polite">
             {transcript}
+          </div>
+          <div className="text-xs text-gray-400 mt-1">
+            {transcript.length > 0 ? 'Stop speaking to add to conversation...' : ''}
           </div>
         </div>
       )}
@@ -96,9 +128,9 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
       {/* Instructions */}
       <div className="text-sm text-gray-400 space-y-1">
         <div>• Click the microphone to start voice recognition</div>
-        <div>• Speak clearly for best results</div>
-        <div>• Text will appear in large, high-contrast format</div>
-        <div>• Your speech will be added to the conversation log</div>
+        <div>• Speak clearly and pause when finished</div>
+        <div>• Text will be added to conversation after you stop speaking</div>
+        <div>• Large text appears for accessibility</div>
       </div>
 
       {/* Browser Compatibility Notice */}
