@@ -1,8 +1,9 @@
+<<<<<<< HEAD
 # Silent-Connect [BETA] 🌉
 
 > **Winner of [Hackathon Name] 2024** - A revolutionary bi-directional communication tool bridging the gap between Deaf/Hard-of-Hearing and hearing communities through real-time gesture recognition and speech processing.
 
-[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Site-00ffff?style=for-the-badge)](https://your-deployment-url.vercel.app)
+[![Live Demo](https://img.shields.io/badge/🌐_Live_Demo-Visit_Site-00ffff?style=for-the-badge)](https://silent-connect-xyz.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/yourusername/silent-connect)
 [![Demo Video](https://img.shields.io/badge/📹_Demo_Video-Watch_Now-ff0000?style=for-the-badge&logo=youtube)](https://your-video-link)
 
@@ -237,3 +238,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ---
 
 **Silent-Connect** - Bridging communication barriers with technology. 🌉
+=======
+# silent-connect
+>>>>>>> 59054964c4e1e9f331e8c161704b8019f470b39b

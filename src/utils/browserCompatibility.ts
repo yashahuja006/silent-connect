@@ -16,14 +16,14 @@ export const checkBrowserCompatibility = (): CompatibilityCheck[] => {
 
   // Check Web Speech API - Speech Recognition
   checks.push({
-    isSupported: !!('webkitSpeechRecognition' in globalThis || 'SpeechRecognition' in globalThis),
+    isSupported: !!((globalThis as any).webkitSpeechRecognition || (globalThis as any).SpeechRecognition),
     feature: 'Speech Recognition',
     message: 'Speech recognition enables voice-to-text functionality'
   })
 
   // Check Web Speech API - Speech Synthesis
   checks.push({
-    isSupported: !!('speechSynthesis' in globalThis),
+    isSupported: !!((globalThis as any).speechSynthesis),
     feature: 'Speech Synthesis',
     message: 'Speech synthesis enables text-to-speech for gestures'
   })
@@ -37,14 +37,14 @@ export const checkBrowserCompatibility = (): CompatibilityCheck[] => {
 
   // Check WebAssembly (MediaPipe requirement)
   checks.push({
-    isSupported: !!globalThis.WebAssembly,
+    isSupported: !!((globalThis as any).WebAssembly),
     feature: 'WebAssembly',
     message: 'WebAssembly is required for MediaPipe hand tracking'
   })
 
   // Check if running in secure context (HTTPS or localhost)
   checks.push({
-    isSupported: globalThis.isSecureContext,
+    isSupported: (globalThis as any).isSecureContext,
     feature: 'Secure Context',
     message: 'HTTPS is required for camera and microphone access'
   })

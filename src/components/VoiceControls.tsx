@@ -102,7 +102,7 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
       </div>
 
       {/* Browser Compatibility Notice */}
-      {!('webkitSpeechRecognition' in globalThis) && !('SpeechRecognition' in globalThis) && (
+      {!((globalThis as any).webkitSpeechRecognition) && !((globalThis as any).SpeechRecognition) && (
         <div className="mt-4 p-3 bg-yellow-900/50 border border-yellow-500/30 rounded-lg">
           <div className="text-yellow-300 text-sm">
             <strong>Notice:</strong> Speech recognition may not be fully supported in this browser.

@@ -1,10 +1,7 @@
 import { HandLandmark, GestureResult } from '../types'
 
 export class GestureRecognizer {
-  private landmarks: HandLandmark[] | null = null
-
   detectGesture(landmarks: HandLandmark[]): GestureResult {
-    this.landmarks = landmarks
     
     // Test each gesture and return the one with highest confidence
     const gestures = [

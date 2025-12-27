@@ -5,7 +5,7 @@ interface ConfidenceMeterProps {
   gesture: string
 }
 
-const ConfidenceMeter: React.FC<ConfidenceMeterProps> = ({ confidence, gesture }) => {
+const ConfidenceMeter: React.FC<ConfidenceMeterProps> = ({ confidence }) => {
   const percentage = Math.round(confidence * 100)
   const isHighConfidence = confidence >= 0.7
   

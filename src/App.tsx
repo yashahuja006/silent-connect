@@ -48,12 +48,6 @@ function App() {
     setMessages(prev => [...prev, message])
   }
 
-  const handleError = (errorMessage: string) => {
-    setError(errorMessage)
-    // Auto-clear error after 5 seconds
-    setTimeout(() => setError(null), 5000)
-  }
-
   return (
     <div className="min-h-screen bg-cyber-dark text-white">
       {/* Compatibility Checker */}

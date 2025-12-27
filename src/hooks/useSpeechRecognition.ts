@@ -7,6 +7,9 @@ declare global {
     webkitSpeechRecognition: any
     SpeechRecognition: any
   }
+  
+  var webkitSpeechRecognition: any
+  var SpeechRecognition: any
 }
 
 export const useSpeechRecognition = (): SpeechRecognitionResult => {
@@ -19,7 +22,7 @@ export const useSpeechRecognition = (): SpeechRecognitionResult => {
 
   useEffect(() => {
     // Initialize speech recognition
-    const SpeechRecognition = globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition
+    const SpeechRecognition = (globalThis as any).SpeechRecognition || (globalThis as any).webkitSpeechRecognition
     
     if (!SpeechRecognition) {
       setError('Speech recognition not supported in this browser')

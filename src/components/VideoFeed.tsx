@@ -22,8 +22,12 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
 
   useEffect(() => {
     // Set up video reference from webcam
-    if (webcamRef.current && webcamRef.current.video) {
-      videoRef.current = webcamRef.current.video
+    if (webcamRef.current?.video) {
+      const video = webcamRef.current.video
+      if (videoRef.current !== video) {
+        // Create a new ref object if needed
+        ;(videoRef as any).current = video
+      }
     }
   }, [])
 
