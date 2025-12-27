@@ -18,7 +18,7 @@ export const useHandTracking = (
   const lastGestureTime = useRef<number>(0)
   const gestureHoldStart = useRef<number>(0)
   const lastTriggeredGesture = useRef<string | null>(null)
-  const initializationTimeout = useRef<NodeJS.Timeout | null>(null)
+  const initializationTimeout = useRef<number | null>(null)
 
   useEffect(() => {
     if (!videoRef.current || !canvasRef.current) return
