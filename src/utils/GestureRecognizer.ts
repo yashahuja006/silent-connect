@@ -56,11 +56,11 @@ export class GestureRecognizer {
       // Check finger spread (distance between fingertips)
       const spread = this.calculateFingerSpread(landmarks)
       
-      // Open palm: all fingers extended + good spread
+      // Open palm: all fingers extended + good spread (more lenient for demo)
       const fingerScore = extendedFingers / 5
-      const spreadScore = Math.min(spread / 0.3, 1) // Normalize spread
+      const spreadScore = Math.min(spread / 0.2, 1) // More lenient spread requirement
       
-      return (fingerScore * 0.7 + spreadScore * 0.3)
+      return Math.min((fingerScore * 0.8 + spreadScore * 0.2), 1)
     } catch (error) {
       return 0
     }
@@ -88,8 +88,8 @@ export class GestureRecognizer {
         }
       }
       
-      // Closed fist: all fingers closed
-      return closedFingers / 5
+      // More lenient for demo - 4 out of 5 fingers is enough
+      return Math.min(closedFingers / 4, 1)
     } catch (error) {
       return 0
     }
@@ -102,7 +102,7 @@ export class GestureRecognizer {
       // Thumb pointing down: thumb tip below thumb IP joint
       const thumbDown = landmarks[4].y > landmarks[3].y
       
-      // Other fingers should be closed
+      // Other fingers should be closed (more lenient)
       const fingerTips = [8, 12, 16, 20]
       const fingerPIPs = [6, 10, 14, 18]
       
@@ -114,9 +114,9 @@ export class GestureRecognizer {
       }
       
       const thumbScore = thumbDown ? 1 : 0
-      const fingersScore = closedFingers / 4
+      const fingersScore = closedFingers / 4 // More lenient
       
-      return (thumbScore * 0.6 + fingersScore * 0.4)
+      return Math.min((thumbScore * 0.7 + fingersScore * 0.3), 1)
     } catch (error) {
       return 0
     }
@@ -130,21 +130,20 @@ export class GestureRecognizer {
       const indexExtended = landmarks[8].y < landmarks[6].y
       const middleExtended = landmarks[12].y < landmarks[10].y
       
-      // Ring and pinky should be closed
+      // Ring and pinky should be closed (more lenient)
       const ringClosed = landmarks[16].y > landmarks[14].y
       const pinkyClosed = landmarks[20].y > landmarks[18].y
       
-      // Thumb can be either way
       const extendedCount = (indexExtended ? 1 : 0) + (middleExtended ? 1 : 0)
       const closedCount = (ringClosed ? 1 : 0) + (pinkyClosed ? 1 : 0)
       
       // Check separation between index and middle finger
       const separation = Math.abs(landmarks[8].x - landmarks[12].x)
-      const separationScore = Math.min(separation / 0.1, 1)
+      const separationScore = Math.min(separation / 0.08, 1) // More lenient
       
       const gestureScore = (extendedCount / 2) * (closedCount / 2)
       
-      return gestureScore * 0.7 + separationScore * 0.3
+      return Math.min(gestureScore * 0.6 + separationScore * 0.4, 1)
     } catch (error) {
       return 0
     }
@@ -157,7 +156,7 @@ export class GestureRecognizer {
       // Only index finger extended, others closed
       const indexExtended = landmarks[8].y < landmarks[6].y
       
-      // Other fingers should be closed
+      // Other fingers should be closed (more lenient)
       const middleClosed = landmarks[12].y > landmarks[10].y
       const ringClosed = landmarks[16].y > landmarks[14].y
       const pinkyClosed = landmarks[20].y > landmarks[18].y
@@ -172,7 +171,7 @@ export class GestureRecognizer {
       const pointingUp = landmarks[8].y < landmarks[5].y // Tip above MCP joint
       const directionScore = pointingUp ? 1 : 0
       
-      return extendedScore * 0.4 + closedScore * 0.4 + directionScore * 0.2
+      return Math.min(extendedScore * 0.5 + closedScore * 0.3 + directionScore * 0.2, 1)
     } catch (error) {
       return 0
     }

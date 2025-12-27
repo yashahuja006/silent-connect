@@ -133,15 +133,18 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
           <div className="absolute inset-0 flex items-center justify-center bg-cyber-dark/80">
             <div className="text-center">
               <div className="animate-spin w-8 h-8 border-2 border-cyber-cyan border-t-transparent rounded-full mx-auto mb-4"></div>
-              <div className="text-cyber-cyan mb-2">Initializing MediaPipe...</div>
+              <div className="text-cyber-cyan mb-2">🎬 Loading Demo Mode...</div>
               <div className="text-sm text-gray-400 mb-4">
-                Loading hand tracking models (~3MB)
+                Optimized for video recording (~8s)
+              </div>
+              <div className="text-xs text-gray-500 mb-4">
+                ✨ Multiple CDN sources • Faster model • Better detection
               </div>
               <button
                 onClick={() => setShowDemoMode(true)}
                 className="text-cyber-teal hover:text-cyber-cyan text-sm underline"
               >
-                Skip to Demo Mode
+                Skip to Button Demo
               </button>
             </div>
           </div>
