@@ -1,7 +1,8 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useState } from 'react'
 import Webcam from 'react-webcam'
 import { useHandTracking } from '../hooks/useHandTracking'
 import ConfidenceMeter from './ConfidenceMeter'
+import DemoMode from './DemoMode'
 
 interface VideoFeedProps {
   onGestureDetected: (gesture: string, confidence: number) => void
@@ -17,6 +18,7 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
   const webcamRef = useRef<Webcam>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
+  const [showDemoMode, setShowDemoMode] = useState(false)
 
   const { isLoaded, error } = useHandTracking(videoRef, canvasRef)
 
@@ -38,10 +40,26 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
     }
   }, [currentGesture, confidence, onGestureDetected])
 
+  useEffect(() => {
+    // Show demo mode if MediaPipe fails to load after 20 seconds
+    const demoTimeout = setTimeout(() => {
+      if (!isLoaded && !showDemoMode) {
+        setShowDemoMode(true)
+      }
+    }, 20000)
+
+    return () => clearTimeout(demoTimeout)
+  }, [isLoaded, showDemoMode])
+
   const videoConstraints = {
     width: 640,
     height: 480,
     facingMode: 'user'
+  }
+
+  // Show demo mode if MediaPipe is taking too long or failed
+  if (showDemoMode || (error && error.includes('timeout'))) {
+    return <DemoMode onGestureDetected={onGestureDetected} />
   }
 
   return (
@@ -98,18 +116,33 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
         )}
 
         {/* Error Display */}
-        {error && (
-          <div className="absolute top-4 right-4 bg-red-900/80 backdrop-blur-sm rounded-lg p-3 border border-red-500/30">
-            <div className="text-red-300 text-sm">{error}</div>
+        {error && !showDemoMode && (
+          <div className="absolute top-4 right-4 bg-red-900/80 backdrop-blur-sm rounded-lg p-3 border border-red-500/30 max-w-xs">
+            <div className="text-red-300 text-sm mb-2">{error}</div>
+            <button
+              onClick={() => setShowDemoMode(true)}
+              className="text-cyber-cyan hover:text-cyber-teal text-xs underline"
+            >
+              Try Demo Mode Instead
+            </button>
           </div>
         )}
 
-        {/* Loading Overlay */}
-        {!isLoaded && !error && (
+        {/* Loading Overlay with Progress */}
+        {!isLoaded && !error && !showDemoMode && (
           <div className="absolute inset-0 flex items-center justify-center bg-cyber-dark/80">
             <div className="text-center">
               <div className="animate-spin w-8 h-8 border-2 border-cyber-cyan border-t-transparent rounded-full mx-auto mb-4"></div>
-              <div className="text-cyber-cyan">Initializing MediaPipe...</div>
+              <div className="text-cyber-cyan mb-2">Initializing MediaPipe...</div>
+              <div className="text-sm text-gray-400 mb-4">
+                Loading hand tracking models (~3MB)
+              </div>
+              <button
+                onClick={() => setShowDemoMode(true)}
+                className="text-cyber-teal hover:text-cyber-cyan text-sm underline"
+              >
+                Skip to Demo Mode
+              </button>
             </div>
           </div>
         )}
@@ -118,10 +151,10 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
       {/* Status Bar */}
       <div className="mt-4 flex justify-between items-center text-sm text-gray-400">
         <div>
-          {isLoaded ? 'Hand tracking active' : 'Initializing...'}
+          {isLoaded ? 'Hand tracking active' : showDemoMode ? 'Demo mode active' : 'Initializing...'}
         </div>
         <div>
-          FPS: ~30 | Latency: ~12ms
+          {isLoaded ? 'FPS: ~30 | Latency: ~12ms' : 'Loading models...'}
         </div>
       </div>
     </div>

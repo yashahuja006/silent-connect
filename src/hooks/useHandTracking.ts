@@ -18,15 +18,35 @@ export const useHandTracking = (
   const lastGestureTime = useRef<number>(0)
   const gestureHoldStart = useRef<number>(0)
   const lastTriggeredGesture = useRef<string | null>(null)
+  const initializationTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (!videoRef.current || !canvasRef.current) return
 
+    // Set a timeout for MediaPipe initialization
+    initializationTimeout.current = setTimeout(() => {
+      if (!isLoaded) {
+        setError('MediaPipe is taking too long to load. Please refresh the page or try a different browser.')
+      }
+    }, 15000) // 15 second timeout
+
     const initializeHandTracking = async () => {
       try {
-        // Initialize MediaPipe Hands
-        const { Hands } = await import('@mediapipe/hands')
-        const { Camera } = await import('@mediapipe/camera_utils')
+        console.log('Starting MediaPipe initialization...')
+        
+        // Try to load MediaPipe with timeout
+        const loadPromise = Promise.all([
+          import('@mediapipe/hands'),
+          import('@mediapipe/camera_utils')
+        ])
+
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('MediaPipe loading timeout')), 10000)
+        })
+
+        const [{ Hands }, { Camera }] = await Promise.race([loadPromise, timeoutPromise]) as any
+
+        console.log('MediaPipe modules loaded, initializing...')
         
         const hands = new Hands({
           locateFile: (file: string) => {
@@ -35,21 +55,25 @@ export const useHandTracking = (
         })
 
         hands.setOptions({
-          maxNumHands: 2,
-          modelComplexity: 1,
-          minDetectionConfidence: 0.5,
+          maxNumHands: 1, // Reduced from 2 for better performance
+          modelComplexity: 0, // Reduced from 1 for faster loading
+          minDetectionConfidence: 0.7, // Increased for better accuracy
           minTrackingConfidence: 0.5
         })
 
         hands.onResults(onResults)
         handsRef.current = hands
 
-        // Initialize camera - ensure videoRef.current is not null
+        // Initialize camera with error handling
         if (videoRef.current) {
           const camera = new Camera(videoRef.current, {
             onFrame: async () => {
               if (handsRef.current && videoRef.current) {
-                await handsRef.current.send({ image: videoRef.current })
+                try {
+                  await handsRef.current.send({ image: videoRef.current })
+                } catch (err) {
+                  console.warn('Frame processing error:', err)
+                }
               }
             },
             width: 640,
@@ -58,12 +82,23 @@ export const useHandTracking = (
 
           cameraRef.current = camera
           await camera.start()
+          
+          // Clear timeout on successful initialization
+          if (initializationTimeout.current) {
+            clearTimeout(initializationTimeout.current)
+          }
+          
           setIsLoaded(true)
+          console.log('MediaPipe initialized successfully!')
         }
         
       } catch (err) {
-        setError(`Failed to initialize hand tracking: ${err}`)
-        console.error('Hand tracking initialization error:', err)
+        console.error('MediaPipe initialization failed:', err)
+        setError(`Failed to initialize hand tracking: ${err}. Try refreshing or use Chrome/Edge browser.`)
+        
+        if (initializationTimeout.current) {
+          clearTimeout(initializationTimeout.current)
+        }
       }
     }
 
@@ -156,6 +191,9 @@ export const useHandTracking = (
     initializeHandTracking()
 
     return () => {
+      if (initializationTimeout.current) {
+        clearTimeout(initializationTimeout.current)
+      }
       if (cameraRef.current) {
         cameraRef.current.stop()
       }
