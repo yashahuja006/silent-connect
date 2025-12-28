@@ -41,51 +41,89 @@ export const useHandTracking = (
 
     const initializeHandTracking = async () => {
       try {
-        console.log('Loading MediaPipe...')
+        console.log('🔄 Starting MediaPipe initialization...')
         
-        // Add a race condition: either MediaPipe loads or we timeout
-        const mediapikePromise = Promise.all([
-          import('@mediapipe/hands'),
-          import('@mediapipe/camera_utils')
+        // Step 1: Test if MediaPipe packages can be imported
+        console.log('📦 Importing MediaPipe packages...')
+        const [handsModule, cameraModule] = await Promise.all([
+          import('@mediapipe/hands').catch(err => {
+            console.error('❌ Failed to import @mediapipe/hands:', err)
+            throw new Error('MediaPipe hands import failed')
+          }),
+          import('@mediapipe/camera_utils').catch(err => {
+            console.error('❌ Failed to import @mediapipe/camera_utils:', err)
+            throw new Error('MediaPipe camera_utils import failed')
+          })
         ])
         
-        const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('MediaPipe import timeout')), 3000)
-        })
-        
-        const [{ Hands }, { Camera }] = await Promise.race([
-          mediapikePromise,
-          timeoutPromise
-        ]) as any
+        console.log('✅ MediaPipe packages imported successfully')
+        const { Hands } = handsModule
+        const { Camera } = cameraModule
 
+        // Step 2: Test CDN connectivity
+        console.log('🌐 Testing CDN connectivity...')
+        const testUrl = 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js'
+        try {
+          const response = await fetch(testUrl, { method: 'HEAD' })
+          if (!response.ok) {
+            throw new Error(`CDN test failed: ${response.status}`)
+          }
+          console.log('✅ CDN connectivity confirmed')
+        } catch (cdnError) {
+          console.warn('⚠️ CDN test failed, but continuing:', cdnError)
+        }
+
+        // Step 3: Initialize Hands with multiple CDN fallbacks
+        console.log('🤖 Initializing MediaPipe Hands...')
         const hands = new Hands({
           locateFile: (file: string) => {
-            // Force reliable CDN as requested
-            return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+            // Try multiple CDN sources
+            const cdnSources = [
+              `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+              `https://unpkg.com/@mediapipe/hands/${file}`,
+              `https://cdn.skypack.dev/@mediapipe/hands/${file}`
+            ]
+            
+            console.log(`📁 Loading file: ${file} from primary CDN`)
+            return cdnSources[0] // Use primary CDN
           }
         })
 
-        // Optimized settings for performance
+        // Step 4: Configure MediaPipe settings
+        console.log('⚙️ Configuring MediaPipe settings...')
         hands.setOptions({
           maxNumHands: 1,
           modelComplexity: 0, // Fastest model
-          minDetectionConfidence: 0.6,
-          minTrackingConfidence: 0.5,
+          minDetectionConfidence: 0.5, // Lowered for better detection
+          minTrackingConfidence: 0.4,  // Lowered for better tracking
           selfieMode: true
         })
 
         hands.onResults(onResults)
         handsRef.current = hands
+        console.log('✅ MediaPipe Hands configured')
 
-        // Initialize camera
+        // Step 5: Initialize camera with error handling
         if (videoRef.current) {
+          console.log('📹 Initializing camera...')
+          
+          // Check camera permissions first
+          try {
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true })
+            stream.getTracks().forEach(track => track.stop()) // Stop test stream
+            console.log('✅ Camera permissions granted')
+          } catch (permError) {
+            console.error('❌ Camera permission denied:', permError)
+            throw new Error('Camera access denied')
+          }
+
           const camera = new Camera(videoRef.current, {
             onFrame: async () => {
               if (handsRef.current && videoRef.current) {
                 try {
                   await handsRef.current.send({ image: videoRef.current })
                 } catch (err) {
-                  console.warn('Frame processing error:', err)
+                  console.warn('⚠️ Frame processing error:', err)
                 }
               }
             },
@@ -94,6 +132,8 @@ export const useHandTracking = (
           })
 
           cameraRef.current = camera
+          
+          console.log('🚀 Starting camera...')
           await camera.start()
           
           // Clear timeout on success
@@ -103,12 +143,27 @@ export const useHandTracking = (
           
           setIsLoaded(true)
           setError(null)
-          console.log('✅ MediaPipe loaded successfully!')
+          console.log('🎉 MediaPipe loaded successfully!')
         }
         
       } catch (err) {
-        console.error('MediaPipe failed:', err)
-        setError('MediaPipe failed to load - using demo mode')
+        console.error('💥 MediaPipe initialization failed:', err)
+        
+        // Provide specific error messages
+        let errorMessage = 'MediaPipe failed to load'
+        if (err instanceof Error) {
+          if (err.message.includes('import')) {
+            errorMessage = 'MediaPipe packages failed to import - using demo mode'
+          } else if (err.message.includes('Camera')) {
+            errorMessage = 'Camera access denied - using demo mode'
+          } else if (err.message.includes('CDN')) {
+            errorMessage = 'MediaPipe CDN unavailable - using demo mode'
+          } else {
+            errorMessage = `MediaPipe error: ${err.message} - using demo mode`
+          }
+        }
+        
+        setError(errorMessage)
         
         if (initializationTimeout.current) {
           clearTimeout(initializationTimeout.current)

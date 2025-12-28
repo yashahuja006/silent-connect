@@ -3,6 +3,7 @@ import Webcam from 'react-webcam'
 import { useHandTracking } from '../hooks/useHandTracking'
 import ConfidenceMeter from './ConfidenceMeter'
 import DemoMode from './DemoMode'
+import MediaPipeDebug from './MediaPipeDebug'
 
 interface VideoFeedProps {
   onGestureDetected: (gesture: string, confidence: number) => void
@@ -19,6 +20,7 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const [showDemoMode, setShowDemoMode] = useState(false)
+  const [showDebug, setShowDebug] = useState(false)
 
   const { isLoaded, error } = useHandTracking(videoRef, canvasRef)
 
@@ -120,12 +122,20 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
         {error && !showDemoMode && (
           <div className="absolute top-4 right-4 bg-red-900/80 backdrop-blur-md rounded-lg p-3 border border-red-500/30 max-w-xs">
             <div className="text-red-300 text-sm mb-2">{error}</div>
-            <button
-              onClick={() => setShowDemoMode(true)}
-              className="text-cyan-400 hover:text-teal-400 text-xs underline"
-            >
-              Try Demo Mode Instead
-            </button>
+            <div className="space-y-2">
+              <button
+                onClick={() => setShowDemoMode(true)}
+                className="block w-full text-cyan-400 hover:text-teal-400 text-xs underline"
+              >
+                Try Demo Mode Instead
+              </button>
+              <button
+                onClick={() => setShowDebug(true)}
+                className="block w-full text-yellow-400 hover:text-yellow-300 text-xs underline"
+              >
+                🔍 Debug MediaPipe
+              </button>
+            </div>
           </div>
         )}
 
@@ -150,6 +160,12 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
                 >
                   🎭 Use Demo Mode Instead
                 </button>
+                <button
+                  onClick={() => setShowDebug(true)}
+                  className="bg-yellow-600/50 hover:bg-yellow-500/50 border border-yellow-400/50 text-yellow-100 px-6 py-3 rounded-lg font-medium transition-all"
+                >
+                  🔍 Debug MediaPipe Issues
+                </button>
                 <div className="text-xs text-gray-400">
                   Demo mode works instantly with button gestures
                 </div>
@@ -158,6 +174,11 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
           </div>
         )}
       </div>
+
+      {/* Debug Modal */}
+      {showDebug && (
+        <MediaPipeDebug onClose={() => setShowDebug(false)} />
+      )}
 
       {/* Status Bar */}
       <div className="mt-4 flex justify-between items-center text-sm text-gray-400">
