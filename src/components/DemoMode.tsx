@@ -8,11 +8,18 @@ const DemoMode: React.FC<DemoModeProps> = ({ onGestureDetected }) => {
   const [selectedGesture, setSelectedGesture] = useState<string>('')
 
   const demoGestures = [
-    { name: 'Hello/Hi', emoji: '👋', description: 'Open Palm' },
+    { name: 'Hello', emoji: '👋', description: 'Open Palm' },
     { name: 'Yes', emoji: '✊', description: 'Closed Fist' },
+    { name: 'Good', emoji: '👍', description: 'Thumbs Up' },
     { name: 'No', emoji: '👎', description: 'Thumbs Down' },
-    { name: 'Peace/Victory', emoji: '✌️', description: 'Peace Sign' },
-    { name: 'I have a question', emoji: '☝️', description: 'Index Pointing Up' }
+    { name: 'Peace', emoji: '✌️', description: 'Victory Sign' },
+    { name: 'Question', emoji: '☝️', description: 'Point Up' },
+    { name: 'Call me', emoji: '🤙', description: 'Call Me' },
+    { name: 'Love', emoji: '🤟', description: 'I Love You' },
+    { name: 'Rock', emoji: '🤘', description: 'Rock On' },
+    { name: 'Okay', emoji: '👌', description: 'OK Sign' },
+    { name: 'Stop', emoji: '✋', description: 'Stop Hand' },
+    { name: 'Thanks', emoji: '🙏', description: 'Praying Hands' }
   ]
 
   const handleGestureClick = (gesture: string) => {
@@ -33,32 +40,32 @@ const DemoMode: React.FC<DemoModeProps> = ({ onGestureDetected }) => {
   }
 
   return (
-    <div className="cyber-card h-full flex flex-col">
+    <div className="bg-slate-800/50 backdrop-blur-md border border-cyan-500/30 rounded-lg p-6 h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-cyber-cyan">Demo Mode</h2>
+        <h2 className="text-xl font-bold text-cyan-400">Demo Mode</h2>
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 rounded-full bg-yellow-500" />
           <span className="text-sm text-gray-300">Fallback Mode</span>
         </div>
       </div>
 
-      <div className="flex-1 bg-cyber-darker rounded-lg p-6">
+      <div className="flex-1 bg-slate-900/80 rounded-lg p-6 border border-slate-700/50">
         <div className="text-center mb-6">
-          <div className="text-cyber-teal text-lg mb-2">🎭</div>
-          <div className="text-cyber-teal mb-4">
+          <div className="text-teal-400 text-lg mb-2">🎭</div>
+          <div className="text-teal-400 mb-4">
             MediaPipe is taking too long to load. Try these demo gestures:
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3">
+        <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto">
           {demoGestures.map((gesture) => (
             <button
               key={gesture.name}
               onClick={() => handleGestureClick(gesture.name)}
-              className={`cyber-button flex items-center justify-between p-4 text-left transition-all ${
+              className={`bg-slate-700/50 backdrop-blur-md border border-slate-600/30 hover:border-cyan-500/50 rounded-lg flex items-center justify-between p-4 text-left transition-all ${
                 selectedGesture === gesture.name 
-                  ? 'bg-cyber-cyan text-cyber-dark animate-pulse' 
-                  : ''
+                  ? 'bg-cyan-600/30 border-cyan-400/50 text-cyan-100 animate-pulse' 
+                  : 'text-gray-100 hover:bg-slate-600/50'
               }`}
             >
               <div className="flex items-center space-x-3">
@@ -69,7 +76,7 @@ const DemoMode: React.FC<DemoModeProps> = ({ onGestureDetected }) => {
                 </div>
               </div>
               {selectedGesture === gesture.name && (
-                <div className="text-sm font-medium">Speaking...</div>
+                <div className="text-sm font-medium text-cyan-300">Speaking...</div>
               )}
             </button>
           ))}
@@ -79,8 +86,8 @@ const DemoMode: React.FC<DemoModeProps> = ({ onGestureDetected }) => {
           <div>Click any gesture to test speech synthesis</div>
           <div className="mt-2">
             <button
-              onClick={() => window.location.reload()}
-              className="text-cyber-cyan hover:text-cyber-teal underline"
+              onClick={() => globalThis.location.reload()}
+              className="text-cyan-400 hover:text-teal-400 underline"
             >
               Refresh to retry MediaPipe loading
             </button>

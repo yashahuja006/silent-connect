@@ -2,7 +2,6 @@ import React from 'react'
 
 interface ConfidenceMeterProps {
   confidence: number
-  gesture: string
 }
 
 const ConfidenceMeter: React.FC<ConfidenceMeterProps> = ({ confidence }) => {
@@ -11,15 +10,15 @@ const ConfidenceMeter: React.FC<ConfidenceMeterProps> = ({ confidence }) => {
   
   // Color based on confidence level
   const getConfidenceColor = () => {
-    if (confidence >= 0.8) return 'text-cyber-green'
-    if (confidence >= 0.7) return 'text-cyber-cyan'
+    if (confidence >= 0.8) return 'text-green-400'
+    if (confidence >= 0.7) return 'text-cyan-400'
     if (confidence >= 0.5) return 'text-yellow-400'
     return 'text-red-400'
   }
 
   const getBarColor = () => {
-    if (confidence >= 0.8) return 'bg-cyber-green'
-    if (confidence >= 0.7) return 'bg-cyber-cyan'
+    if (confidence >= 0.8) return 'bg-green-400'
+    if (confidence >= 0.7) return 'bg-cyan-400'
     if (confidence >= 0.5) return 'bg-yellow-400'
     return 'bg-red-400'
   }
@@ -34,7 +33,7 @@ const ConfidenceMeter: React.FC<ConfidenceMeterProps> = ({ confidence }) => {
       </div>
       
       {/* Progress Bar */}
-      <div className="w-full bg-cyber-gray rounded-full h-2 overflow-hidden">
+      <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
         <div 
           className={`h-full transition-all duration-300 ${getBarColor()} ${
             isHighConfidence ? 'animate-pulse' : ''
@@ -46,7 +45,7 @@ const ConfidenceMeter: React.FC<ConfidenceMeterProps> = ({ confidence }) => {
       {/* Confidence Status */}
       <div className="mt-1 text-xs text-center">
         {isHighConfidence ? (
-          <span className="text-cyber-green">✓ Ready to speak</span>
+          <span className="text-green-400">✓ Ready to speak</span>
         ) : (
           <span className="text-gray-400">Adjusting position...</span>
         )}

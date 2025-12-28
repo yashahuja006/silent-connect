@@ -15,11 +15,11 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
   } = useSpeechRecognition()
 
   const lastSentTranscript = useRef<string>('')
-  const transcriptTimeout = useRef<number | null>(null)
+  const transcriptTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     // Only send transcript when it's final and different from last sent
-    if (transcript && transcript.trim() && transcript !== lastSentTranscript.current) {
+    if (transcript?.trim() && transcript !== lastSentTranscript.current) {
       
       // Clear any existing timeout
       if (transcriptTimeout.current) {
@@ -27,7 +27,7 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
       }
       
       // Set a timeout to send the transcript after user stops speaking
-      transcriptTimeout.current = window.setTimeout(() => {
+      transcriptTimeout.current = globalThis.setTimeout(() => {
         const finalText = transcript.trim()
         if (finalText && finalText !== lastSentTranscript.current) {
           onSpeechDetected(finalText)
@@ -58,9 +58,9 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
   }
 
   return (
-    <div className="cyber-card">
+    <div className="bg-slate-800/50 backdrop-blur-md border border-cyan-500/30 rounded-lg p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-cyber-cyan">Voice Engine</h2>
+        <h2 className="text-xl font-bold text-cyan-400">Voice Engine</h2>
         <div className="flex items-center space-x-2">
           <div className={`w-3 h-3 rounded-full ${
             isListening ? 'bg-red-500 animate-pulse' : 'bg-gray-500'
@@ -75,10 +75,10 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
       <div className="flex items-center space-x-4 mb-4">
         <button
           onClick={handleMicrophoneToggle}
-          className={`cyber-button flex items-center space-x-2 ${
+          className={`bg-slate-700/50 backdrop-blur-md border border-slate-600/30 hover:border-cyan-500/50 rounded-lg px-4 py-2 flex items-center space-x-2 transition-all ${
             isListening 
-              ? 'bg-red-600 border-red-500 text-white hover:bg-red-700' 
-              : 'cyber-button'
+              ? 'bg-red-600/50 border-red-500/50 text-white hover:bg-red-700/50' 
+              : 'text-gray-100 hover:bg-slate-600/50'
           }`}
           disabled={!!error}
           aria-label={isListening ? 'Stop voice recognition' : 'Start voice recognition'}
@@ -93,7 +93,7 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
         </button>
 
         {isListening && (
-          <div className="flex items-center space-x-2 text-cyber-cyan">
+          <div className="flex items-center space-x-2 text-cyan-400">
             <div className="animate-pulse">●</div>
             <span className="text-sm">Recording...</span>
           </div>
@@ -102,20 +102,20 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
 
       {/* Live Transcript Display */}
       {transcript && isListening && (
-        <div className="mb-4" role="region" aria-label="Live speech transcript">
+        <section className="mb-4" aria-label="Live speech transcript">
           <div className="text-xs text-gray-400 mb-1">Live transcript:</div>
-          <div className="subtitle-text" aria-live="polite">
+          <div className="bg-slate-900/80 border border-slate-700/50 rounded-lg p-4 text-white text-lg font-medium" aria-live="polite">
             {transcript}
           </div>
           <div className="text-xs text-gray-400 mt-1">
             {transcript.length > 0 ? 'Stop speaking to add to conversation...' : ''}
           </div>
-        </div>
+        </section>
       )}
 
       {/* Error Display */}
       {error && (
-        <div className="mb-4 p-3 bg-red-900/50 border border-red-500/30 rounded-lg">
+        <div className="mb-4 p-3 bg-red-900/50 border border-red-500/30 rounded-lg backdrop-blur-md">
           <div className="text-red-300 text-sm">
             <strong>Error:</strong> {error}
           </div>
@@ -135,7 +135,7 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
 
       {/* Browser Compatibility Notice */}
       {!((globalThis as any).webkitSpeechRecognition) && !((globalThis as any).SpeechRecognition) && (
-        <div className="mt-4 p-3 bg-yellow-900/50 border border-yellow-500/30 rounded-lg">
+        <div className="mt-4 p-3 bg-yellow-900/50 border border-yellow-500/30 rounded-lg backdrop-blur-md">
           <div className="text-yellow-300 text-sm">
             <strong>Notice:</strong> Speech recognition may not be fully supported in this browser.
             For best results, use Chrome or Edge.

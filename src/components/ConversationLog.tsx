@@ -32,11 +32,11 @@ const ConversationLog: React.FC<ConversationLogProps> = ({ messages }) => {
   }
 
   return (
-    <div className="cyber-card h-full flex flex-col">
+    <div className="bg-slate-800/50 backdrop-blur-md border border-cyan-500/30 rounded-lg p-6 h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-cyber-cyan">Conversation Log</h2>
+        <h2 className="text-xl font-bold text-cyan-400">Conversation Log</h2>
         <div className="text-sm text-gray-400">
-          {messages.length} message{messages.length !== 1 ? 's' : ''}
+          {messages.length} message{messages.length === 1 ? '' : 's'}
         </div>
       </div>
 
@@ -58,39 +58,47 @@ const ConversationLog: React.FC<ConversationLogProps> = ({ messages }) => {
           messages.map((message) => (
             <div
               key={message.id}
-              className="bg-cyber-darker rounded-lg p-4 border border-cyber-teal/20 hover:border-cyber-teal/40 transition-colors"
+              className={`flex ${message.type === 'gesture' ? 'justify-end' : 'justify-start'} mb-3`}
             >
-              {/* Message Header */}
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-2">
-                  <span className="text-lg">{getMessageIcon(message.type)}</span>
-                  <span className="text-sm font-medium text-cyber-teal">
-                    {getMessageTypeLabel(message.type)}
-                  </span>
-                  {message.confidence && (
-                    <span className="text-xs text-gray-400">
-                      ({Math.round(message.confidence * 100)}%)
+              <div
+                className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg backdrop-blur-md border ${
+                  message.type === 'gesture' 
+                    ? 'bg-cyan-600/20 border-cyan-500/30 text-cyan-100' 
+                    : 'bg-slate-700/50 border-slate-600/30 text-gray-100'
+                }`}
+              >
+                {/* Message Header */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-sm">{getMessageIcon(message.type)}</span>
+                    <span className="text-xs font-medium opacity-75">
+                      {getMessageTypeLabel(message.type)}
                     </span>
-                  )}
+                    {message.confidence && (
+                      <span className="text-xs opacity-60">
+                        ({Math.round(message.confidence * 100)}%)
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-xs opacity-60">
+                    {formatTime(message.timestamp)}
+                  </span>
                 </div>
-                <span className="text-xs text-gray-500">
-                  {formatTime(message.timestamp)}
-                </span>
-              </div>
 
-              {/* Message Content */}
-              <div className="text-white text-lg leading-relaxed">
-                {message.content}
-              </div>
+                {/* Message Content */}
+                <div className="text-white text-base leading-relaxed font-medium">
+                  {message.content}
+                </div>
 
-              {/* Message Type Indicator */}
-              <div className="mt-2 flex items-center space-x-2">
-                <div className={`w-2 h-2 rounded-full ${
-                  message.type === 'gesture' ? 'bg-cyber-green' : 'bg-cyber-blue'
-                }`} />
-                <span className="text-xs text-gray-400">
-                  {message.type === 'gesture' ? 'Hand gesture detected' : 'Voice input processed'}
-                </span>
+                {/* Message Type Indicator */}
+                <div className="mt-2 flex items-center space-x-2">
+                  <div className={`w-1.5 h-1.5 rounded-full ${
+                    message.type === 'gesture' ? 'bg-green-400' : 'bg-blue-400'
+                  }`} />
+                  <span className="text-xs opacity-60">
+                    {message.type === 'gesture' ? 'Hand gesture' : 'Voice input'}
+                  </span>
+                </div>
               </div>
             </div>
           ))
@@ -98,7 +106,7 @@ const ConversationLog: React.FC<ConversationLogProps> = ({ messages }) => {
       </div>
 
       {/* Footer Stats */}
-      <div className="mt-4 pt-4 border-t border-cyber-gray flex justify-between text-xs text-gray-400">
+      <div className="mt-4 pt-4 border-t border-slate-700/50 flex justify-between text-xs text-gray-400">
         <div>
           Gestures: {messages.filter(m => m.type === 'gesture').length}
         </div>

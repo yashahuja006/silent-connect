@@ -4,13 +4,13 @@
 
 @layer base {
   body {
-    @apply bg-cyber-dark text-white font-cyber antialiased;
+    @apply bg-slate-900 text-white font-sans antialiased;
   }
   
   /* Custom scrollbar styles */
   * {
     scrollbar-width: thin;
-    scrollbar-color: #00ffff #1a1a1a;
+    scrollbar-color: #06b6d4 #1e293b;
   }
   
   *::-webkit-scrollbar {
@@ -18,40 +18,40 @@
   }
   
   *::-webkit-scrollbar-track {
-    background: #1a1a1a;
+    background: #1e293b;
   }
   
   *::-webkit-scrollbar-thumb {
-    background: #00ffff;
+    background: #06b6d4;
     border-radius: 3px;
   }
   
   *::-webkit-scrollbar-thumb:hover {
-    background: #008080;
+    background: #0891b2;
   }
 }
 
 @layer components {
-  .cyber-button {
-    @apply bg-cyber-gray border border-cyber-cyan text-cyber-cyan px-4 py-2 rounded-lg 
-           hover:bg-cyber-cyan hover:text-cyber-dark transition-all duration-300 
-           focus:outline-none focus:ring-2 focus:ring-cyber-cyan focus:ring-opacity-50;
+  .glassmorphism-card {
+    @apply bg-slate-800/50 backdrop-blur-md border border-cyan-500/30 rounded-lg shadow-lg;
   }
   
-  .cyber-card {
-    @apply bg-cyber-gray border border-cyber-teal rounded-lg p-4 shadow-lg;
+  .glassmorphism-button {
+    @apply bg-slate-700/50 backdrop-blur-md border border-slate-600/30 hover:border-cyan-500/50 
+           text-gray-100 px-4 py-2 rounded-lg hover:bg-slate-600/50 transition-all duration-300 
+           focus:outline-none focus:ring-2 focus:ring-cyan-500/50;
   }
   
   .cyber-glow {
-    @apply shadow-lg shadow-cyber-cyan/20;
+    @apply shadow-lg shadow-cyan-500/20;
   }
   
   .gesture-display {
-    @apply text-gesture text-cyber-cyan font-bold tracking-wide;
+    @apply text-2xl text-cyan-400 font-bold tracking-wide;
   }
   
   .subtitle-text {
-    @apply text-subtitle text-white bg-cyber-dark/80 px-4 py-2 rounded-lg 
-           border border-cyber-cyan/30 backdrop-blur-sm;
+    @apply text-lg text-white bg-slate-900/80 px-4 py-2 rounded-lg 
+           border border-slate-700/50 backdrop-blur-md;
   }
 }
