@@ -41,12 +41,13 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
   }, [currentGesture, confidence, onGestureDetected])
 
   useEffect(() => {
-    // Show demo mode if MediaPipe fails to load after 20 seconds
+    // Show demo mode if MediaPipe fails to load after 8 seconds (reduced from 20)
     const demoTimeout = setTimeout(() => {
       if (!isLoaded && !showDemoMode) {
+        console.log('VideoFeed: Switching to Demo Mode due to loading timeout')
         setShowDemoMode(true)
       }
-    }, 20000)
+    }, 8000) // Reduced timeout
 
     return () => clearTimeout(demoTimeout)
   }, [isLoaded, showDemoMode])
@@ -133,19 +134,26 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
           <div className="absolute inset-0 flex items-center justify-center bg-slate-900/80">
             <div className="text-center">
               <div className="animate-spin w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full mx-auto mb-4"></div>
-              <div className="text-cyan-400 mb-2">🎬 Loading Demo Mode...</div>
+              <div className="text-cyan-400 mb-2">🎬 Loading MediaPipe...</div>
               <div className="text-sm text-gray-400 mb-4">
-                Optimized for video recording (~8s)
+                Optimized for video recording (~5s)
               </div>
-              <div className="text-xs text-gray-500 mb-4">
+              <div className="text-xs text-gray-500 mb-6">
                 ✨ Multiple CDN sources • Faster model • Better detection
               </div>
-              <button
-                onClick={() => setShowDemoMode(true)}
-                className="text-teal-400 hover:text-cyan-400 text-sm underline"
-              >
-                Skip to Button Demo
-              </button>
+              
+              {/* Prominent Demo Button */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => setShowDemoMode(true)}
+                  className="bg-cyan-600/50 hover:bg-cyan-500/50 border border-cyan-400/50 text-cyan-100 px-6 py-3 rounded-lg font-medium transition-all"
+                >
+                  🎭 Use Demo Mode Instead
+                </button>
+                <div className="text-xs text-gray-400">
+                  Demo mode works instantly with button gestures
+                </div>
+              </div>
             </div>
           </div>
         )}

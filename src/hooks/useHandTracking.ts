@@ -31,23 +31,32 @@ export const useHandTracking = (
   useEffect(() => {
     if (!videoRef.current || !canvasRef.current) return
 
-    // CRITICAL: 10-second timeout for DemoMode fallback
+    // CRITICAL: 5-second timeout for DemoMode fallback (reduced from 10s)
     initializationTimeout.current = globalThis.setTimeout(() => {
       if (!isLoaded) {
         console.log('MediaPipe timeout - switching to DemoMode')
         setError('MediaPipe loading timeout - using demo mode')
       }
-    }, 10000)
+    }, 5000) // Reduced to 5 seconds for faster fallback
 
     const initializeHandTracking = async () => {
       try {
         console.log('Loading MediaPipe...')
         
-        // Use standard npm imports (stable)
-        const [{ Hands }, { Camera }] = await Promise.all([
+        // Add a race condition: either MediaPipe loads or we timeout
+        const mediapikePromise = Promise.all([
           import('@mediapipe/hands'),
           import('@mediapipe/camera_utils')
         ])
+        
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('MediaPipe import timeout')), 3000)
+        })
+        
+        const [{ Hands }, { Camera }] = await Promise.race([
+          mediapikePromise,
+          timeoutPromise
+        ]) as any
 
         const hands = new Hands({
           locateFile: (file: string) => {
