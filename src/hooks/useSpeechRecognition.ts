@@ -12,7 +12,7 @@ declare global {
   var SpeechRecognition: any
 }
 
-export const useSpeechRecognition = (): SpeechRecognitionResult => {
+export const useSpeechRecognition = (language: string = 'en-US'): SpeechRecognitionResult => {
   const [isListening, setIsListening] = useState(false)
   const [transcript, setTranscript] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -32,7 +32,7 @@ export const useSpeechRecognition = (): SpeechRecognitionResult => {
     const recognition = new SpeechRecognition()
     recognition.continuous = true
     recognition.interimResults = true
-    recognition.lang = 'en-US'
+    recognition.lang = language
 
     recognition.onstart = () => {
       setIsListening(true)
@@ -78,7 +78,7 @@ export const useSpeechRecognition = (): SpeechRecognitionResult => {
         recognitionRef.current = null
       }
     }
-  }, [])
+  }, [language]) // Add language dependency
 
   const startListening = () => {
     if (!isInitialized.current || !recognitionRef.current) {

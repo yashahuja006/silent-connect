@@ -14,18 +14,18 @@ export class GestureLogic {
 
     // Test all 12 gestures and return the one with highest confidence
     const gestures = [
-      { name: 'Hello', detector: this.isOpenPalm.bind(this) },
-      { name: 'Yes', detector: this.isClosedFist.bind(this) },
-      { name: 'Good', detector: this.isThumbsUp.bind(this) },
+      { name: 'Open Palm', detector: this.isOpenPalm.bind(this) },
+      { name: 'Fist', detector: this.isClosedFist.bind(this) },
+      { name: 'Thumbs Up', detector: this.isThumbsUp.bind(this) },
       { name: 'No', detector: this.isThumbsDown.bind(this) },
       { name: 'Peace', detector: this.isVictory.bind(this) },
-      { name: 'Question', detector: this.isPointUp.bind(this) },
-      { name: 'Call me', detector: this.isCallMe.bind(this) },
-      { name: 'Love', detector: this.isILoveYou.bind(this) },
-      { name: 'Rock', detector: this.isRockOn.bind(this) },
-      { name: 'Okay', detector: this.isOkaySign.bind(this) },
+      { name: 'Point Up', detector: this.isPointUp.bind(this) },
+      { name: 'Hello', detector: this.isCallMe.bind(this) },
+      { name: 'Help', detector: this.isILoveYou.bind(this) },
+      { name: 'Yes', detector: this.isRockOn.bind(this) },
+      { name: 'OK', detector: this.isOkaySign.bind(this) },
       { name: 'Stop', detector: this.isStop.bind(this) },
-      { name: 'Thanks', detector: this.isPraying.bind(this) }
+      { name: 'Thank You', detector: this.isPraying.bind(this) }
     ]
 
     let bestGesture = ''
@@ -58,7 +58,7 @@ export class GestureLogic {
     return Math.hypot(dx, dy)
   }
 
-  // 1. Open Palm ("Hello") -> All fingers up
+  // 1. Open Palm ("Open Palm") -> All fingers up
   private isOpenPalm(landmarks: HandLandmark[]): number {
     try {
       const fingerTips = [4, 8, 12, 16, 20] // Thumb, Index, Middle, Ring, Pinky
@@ -87,7 +87,7 @@ export class GestureLogic {
     }
   }
 
-  // 2. Closed Fist ("Yes") -> All fingers down
+  // 2. Closed Fist ("Fist") -> All fingers down
   private isClosedFist(landmarks: HandLandmark[]): number {
     try {
       const fingerTips = [4, 8, 12, 16, 20]
@@ -111,7 +111,7 @@ export class GestureLogic {
     }
   }
 
-  // 3. Thumbs Up ("Good") -> Thumb up, others down
+  // 3. Thumbs Up ("Thumbs Up") -> Thumb up, others down
   private isThumbsUp(landmarks: HandLandmark[]): number {
     try {
       const thumbUp = landmarks[4].y < landmarks[3].y
@@ -168,7 +168,7 @@ export class GestureLogic {
     }
   }
 
-  // 6. Point Up ("Question") -> Index up, others down
+  // 6. Point Up ("Point Up") -> Index up, others down
   private isPointUp(landmarks: HandLandmark[]): number {
     try {
       const indexUp = this.isFingerUp(landmarks, 8, 6)
@@ -190,7 +190,7 @@ export class GestureLogic {
     }
   }
 
-  // 7. Call Me ("Call me") -> Thumb & Pinky up
+  // 7. Call Me ("Hello") -> Thumb & Pinky up
   private isCallMe(landmarks: HandLandmark[]): number {
     try {
       const thumbUp = landmarks[4].y < landmarks[3].y
@@ -208,7 +208,7 @@ export class GestureLogic {
     }
   }
 
-  // 8. I Love You ("Love") -> Thumb, Index, Pinky up
+  // 8. I Love You ("Help") -> Thumb, Index, Pinky up
   private isILoveYou(landmarks: HandLandmark[]): number {
     try {
       const thumbUp = landmarks[4].y < landmarks[3].y
@@ -226,7 +226,7 @@ export class GestureLogic {
     }
   }
 
-  // 9. Rock On ("Rock") -> Index & Pinky up
+  // 9. Rock On ("Yes") -> Index & Pinky up
   private isRockOn(landmarks: HandLandmark[]): number {
     try {
       const indexUp = this.isFingerUp(landmarks, 8, 6)
@@ -244,7 +244,7 @@ export class GestureLogic {
     }
   }
 
-  // 10. Okay Sign ("Okay") -> Index & Thumb tips close, others up
+  // 10. Okay Sign ("OK") -> Index & Thumb tips close, others up
   private isOkaySign(landmarks: HandLandmark[]): number {
     try {
       const thumbTip = landmarks[4]
@@ -289,7 +289,7 @@ export class GestureLogic {
     }
   }
 
-  // 12. Praying ("Thanks") -> Open Palm at chest level (Wrist Y > 0.7)
+  // 12. Praying ("Thank You") -> Open Palm at chest level (Wrist Y > 0.7)
   private isPraying(landmarks: HandLandmark[]): number {
     try {
       const wristY = landmarks[0].y

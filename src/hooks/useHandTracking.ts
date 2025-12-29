@@ -20,6 +20,11 @@ export const useHandTracking = (
   const currentLandmarksRef = useRef<any>(null)
   const animationFrameRef = useRef<number | null>(null)
   
+  // Particle trails for Index Finger Tip (landmark 8) and Wrist (landmark 0)
+  const indexFingerHistory = useRef<Array<{x: number, y: number, timestamp: number}>>([])
+  const wristHistory = useRef<Array<{x: number, y: number, timestamp: number}>>([])
+  const maxHistoryLength = 10
+  
   // Gesture tracking
   const lastGestureRef = useRef<string | null>(null)
   const gestureHoldStart = useRef<number>(0)
@@ -208,11 +213,42 @@ export const useHandTracking = (
         visibility: landmark.visibility || 1
       }))
 
-      // Draw skeleton with glow effect
-      ctx.strokeStyle = '#00ff80'
+      // Update particle trails for Index Finger Tip (landmark 8) and Wrist (landmark 0)
+      const now = Date.now()
+      
+      if (convertedLandmarks[8]) {
+        indexFingerHistory.current.push({
+          x: convertedLandmarks[8].x * canvas.width,
+          y: convertedLandmarks[8].y * canvas.height,
+          timestamp: now
+        })
+        // Keep only last 10 positions
+        if (indexFingerHistory.current.length > maxHistoryLength) {
+          indexFingerHistory.current.shift()
+        }
+      }
+      
+      if (convertedLandmarks[0]) {
+        wristHistory.current.push({
+          x: convertedLandmarks[0].x * canvas.width,
+          y: convertedLandmarks[0].y * canvas.height,
+          timestamp: now
+        })
+        // Keep only last 10 positions
+        if (wristHistory.current.length > maxHistoryLength) {
+          wristHistory.current.shift()
+        }
+      }
+
+      // Draw particle trails FIRST (behind skeleton)
+      drawParticleTrails(ctx, indexFingerHistory.current, '#00ffff', 'Index Finger')
+      drawParticleTrails(ctx, wristHistory.current, '#ff00ff', 'Wrist')
+
+      // Draw skeleton with NEON CYAN glow effect
+      ctx.strokeStyle = '#00ffff' // Cyan color
       ctx.lineWidth = 3
-      ctx.shadowColor = '#00ff80'
-      ctx.shadowBlur = 5
+      ctx.shadowColor = '#00ffff' // Cyan glow
+      ctx.shadowBlur = 15 // Strong glow effect
 
       // Hand connections
       const connections = [
@@ -239,9 +275,10 @@ export const useHandTracking = (
         }
       })
 
-      // Draw landmark points
-      ctx.fillStyle = '#00ffff'
-      ctx.shadowColor = '#00ffff'
+      // Draw landmark points as WHITE dots with CYAN glow
+      ctx.fillStyle = '#ffffff' // White dots
+      ctx.shadowColor = '#00ffff' // Cyan glow
+      ctx.shadowBlur = 15 // Strong glow
       convertedLandmarks.forEach((landmark: any) => {
         ctx.beginPath()
         ctx.arc(
@@ -252,6 +289,55 @@ export const useHandTracking = (
           2 * Math.PI
         )
         ctx.fill()
+      })
+      
+      ctx.shadowBlur = 0 // Reset shadow
+    }
+
+    const drawParticleTrails = (ctx: CanvasRenderingContext2D, history: Array<{x: number, y: number, timestamp: number}>, color: string, label: string) => {
+      if (history.length < 2) return
+
+      const now = Date.now()
+      
+      // Draw trail lines with fading effect
+      for (let i = 1; i < history.length; i++) {
+        const current = history[i]
+        const previous = history[i - 1]
+        
+        // Calculate age-based opacity (newer = more opaque)
+        const age = now - current.timestamp
+        const maxAge = 2000 // 2 seconds
+        const opacity = Math.max(0, 1 - (age / maxAge))
+        
+        if (opacity > 0) {
+          ctx.strokeStyle = color + Math.floor(opacity * 255).toString(16).padStart(2, '0')
+          ctx.lineWidth = 2 + (opacity * 3) // Thicker lines for newer positions
+          ctx.shadowColor = color
+          ctx.shadowBlur = 8 * opacity
+          
+          ctx.beginPath()
+          ctx.moveTo(previous.x, previous.y)
+          ctx.lineTo(current.x, current.y)
+          ctx.stroke()
+        }
+      }
+      
+      // Draw particles at each position
+      history.forEach((pos, index) => {
+        const age = now - pos.timestamp
+        const maxAge = 2000
+        const opacity = Math.max(0, 1 - (age / maxAge))
+        
+        if (opacity > 0) {
+          const size = 2 + (opacity * 4)
+          ctx.fillStyle = color + Math.floor(opacity * 255).toString(16).padStart(2, '0')
+          ctx.shadowColor = color
+          ctx.shadowBlur = 6 * opacity
+          
+          ctx.beginPath()
+          ctx.arc(pos.x, pos.y, size, 0, 2 * Math.PI)
+          ctx.fill()
+        }
       })
       
       ctx.shadowBlur = 0 // Reset shadow
@@ -294,10 +380,11 @@ export const useHandTracking = (
           lastTriggeredGesture.current = null
         }
         
-        // Check hold duration for speech trigger (1 second)
+        // Check hold duration for speech trigger (1 second) - REMOVED
+        // Speech synthesis is now handled by App.tsx with proper translations
         if (now - gestureHoldStart.current >= 1000 && 
             lastTriggeredGesture.current !== gestureResult.gesture) {
-          triggerSpeechSynthesis(gestureResult.gesture)
+          // Just mark as triggered, no speech here
           lastTriggeredGesture.current = gestureResult.gesture
         }
       } else if (lastGestureRef.current !== null) {
@@ -309,20 +396,7 @@ export const useHandTracking = (
       }
     }
 
-    const triggerSpeechSynthesis = (gesture: string) => {
-      if ('speechSynthesis' in globalThis) {
-        globalThis.speechSynthesis.cancel()
-        
-        const utterance = new SpeechSynthesisUtterance(gesture)
-        utterance.rate = 1.1
-        utterance.pitch = 1
-        utterance.volume = 1
-        
-        setTimeout(() => {
-          globalThis.speechSynthesis.speak(utterance)
-        }, 100)
-      }
-    }
+    // Speech synthesis removed - now handled by App.tsx with proper translations
 
     initializeHandTracking()
 

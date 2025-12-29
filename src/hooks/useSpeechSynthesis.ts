@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { SpeechSynthesisResult } from '../types'
 
-export const useSpeechSynthesis = (): SpeechSynthesisResult => {
+export const useSpeechSynthesis = (language: string = 'en-US'): SpeechSynthesisResult => {
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
@@ -21,7 +21,7 @@ export const useSpeechSynthesis = (): SpeechSynthesisResult => {
       utterance.rate = 1
       utterance.pitch = 1
       utterance.volume = 1
-      utterance.lang = 'en-US'
+      utterance.lang = language
 
       utterance.onstart = () => {
         setIsSpeaking(true)

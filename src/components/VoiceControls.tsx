@@ -3,16 +3,17 @@ import { useSpeechRecognition } from '../hooks/useSpeechRecognition'
 
 interface VoiceControlsProps {
   onSpeechDetected: (text: string) => void
+  language: string
 }
 
-const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected }) => {
+const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected, language }) => {
   const { 
     isListening, 
     transcript, 
     startListening, 
     stopListening, 
     error 
-  } = useSpeechRecognition()
+  } = useSpeechRecognition(language) // Pass language to hook
 
   const lastSentTranscript = useRef<string>('')
   const transcriptTimeout = useRef<NodeJS.Timeout | null>(null)

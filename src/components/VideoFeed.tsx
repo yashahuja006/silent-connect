@@ -4,17 +4,20 @@ import { useHandTracking } from '../hooks/useHandTracking'
 import ConfidenceMeter from './ConfidenceMeter'
 import DemoMode from './DemoMode'
 import MediaPipeDebug from './MediaPipeDebug'
+import { translateGesture } from '../utils/translations'
 
 interface VideoFeedProps {
   onGestureDetected: (gesture: string, confidence: number) => void
   currentGesture: string | null
   confidence: number
+  language: string
 }
 
 const VideoFeed: React.FC<VideoFeedProps> = ({ 
   onGestureDetected, 
   currentGesture, 
-  confidence 
+  confidence,
+  language
 }) => {
   const webcamRef = useRef<Webcam>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -36,11 +39,12 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
   }, [])
 
   useEffect(() => {
-    // Notify parent component of gesture detection
+    // Notify parent component of gesture detection with translation
     if (currentGesture && confidence >= 0.7) {
-      onGestureDetected(currentGesture, confidence)
+      const translatedGesture = translateGesture(currentGesture, language)
+      onGestureDetected(translatedGesture, confidence)
     }
-  }, [currentGesture, confidence, onGestureDetected])
+  }, [currentGesture, confidence, onGestureDetected, language])
 
   useEffect(() => {
     // Show demo mode if MediaPipe fails to load after 8 seconds (reduced from 20)
@@ -65,6 +69,9 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
     return <DemoMode onGestureDetected={onGestureDetected} />
   }
 
+  // Get translated gesture for display
+  const displayGesture = currentGesture ? translateGesture(currentGesture, language) : null
+
   return (
     <div className="bg-slate-800/50 backdrop-blur-md border border-cyan-500/30 rounded-lg p-6 h-full flex flex-col">
       <div className="flex justify-between items-center mb-4">
@@ -78,6 +85,76 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
       </div>
 
       <div className="relative flex-1 bg-slate-900/80 rounded-lg overflow-hidden border border-slate-700/50">
+        {/* Debug Sidebar - Always visible */}
+        <div className="absolute top-4 right-4 z-20 flex flex-col space-y-2">
+          <button
+            onClick={() => {
+              console.log('🎭 User switched to Demo Mode')
+              setShowDemoMode(true)
+            }}
+            className="bg-cyan-600/30 hover:bg-cyan-500/50 border border-cyan-400/30 text-white/70 hover:text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg backdrop-blur-sm"
+          >
+            🎭 Demo Mode
+          </button>
+          
+          <button
+            onClick={() => setShowDebug(true)}
+            className="bg-yellow-600/30 hover:bg-yellow-500/50 border border-yellow-400/30 text-white/70 hover:text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg backdrop-blur-sm"
+          >
+            🔍 Check Logs
+          </button>
+          
+          <button
+            onClick={() => {
+              console.log('🧪 MANUAL TEST: MediaPipe Status Check')
+              console.log('📹 Video ref:', videoRef.current)
+              console.log('🎨 Canvas ref:', canvasRef.current)
+              console.log('📷 Webcam ref:', webcamRef.current?.video)
+              console.log('🤖 MediaPipe loaded:', isLoaded)
+              console.log('❌ Error state:', error)
+              
+              if (webcamRef.current?.video) {
+                const video = webcamRef.current.video
+                console.log('📹 Video state:', {
+                  readyState: video.readyState,
+                  videoWidth: video.videoWidth,
+                  videoHeight: video.videoHeight,
+                  paused: video.paused
+                })
+              }
+            }}
+            className="bg-red-600/30 hover:bg-red-500/50 border border-red-400/30 text-white/70 hover:text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg backdrop-blur-sm"
+          >
+            🧪 Test Status
+          </button>
+          
+          <button
+            onClick={() => {
+              console.log('🎨 CANVAS TEST: Drawing test pattern')
+              const canvas = canvasRef.current
+              if (canvas) {
+                const ctx = canvas.getContext('2d')
+                if (ctx) {
+                  ctx.clearRect(0, 0, canvas.width, canvas.height)
+                  ctx.strokeStyle = '#00ff80'
+                  ctx.lineWidth = 5
+                  ctx.beginPath()
+                  ctx.arc(320, 240, 50, 0, 2 * Math.PI)
+                  ctx.stroke()
+                  console.log('✅ Canvas test circle drawn')
+                  
+                  // Clear after 2 seconds
+                  setTimeout(() => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height)
+                  }, 2000)
+                }
+              }
+            }}
+            className="bg-green-600/30 hover:bg-green-500/50 border border-green-400/30 text-white/70 hover:text-white px-4 py-2 rounded-lg text-sm font-bold shadow-lg backdrop-blur-sm"
+          >
+            🎨 Test Canvas
+          </button>
+        </div>
         {/* Webcam Video */}
         <Webcam
           ref={webcamRef}
@@ -101,22 +178,15 @@ const VideoFeed: React.FC<VideoFeedProps> = ({
         />
 
         {/* Gesture Display Overlay */}
-        {currentGesture && (
+        {displayGesture && (
           <div className="absolute top-4 left-4 bg-slate-800/80 backdrop-blur-md rounded-lg p-3 border border-cyan-500/30">
-            <div className="text-cyan-400 font-bold text-lg">{currentGesture}</div>
+            <div className="text-cyan-400 font-bold text-lg">{displayGesture}</div>
             <ConfidenceMeter confidence={confidence} />
           </div>
         )}
 
-        {/* No Hands Detected Overlay */}
-        {!currentGesture && isLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="bg-slate-800/60 backdrop-blur-md rounded-lg p-6 text-center border border-teal-500/30">
-              <div className="text-teal-400 text-lg mb-2">👋</div>
-              <div className="text-teal-400">Show your hand to start</div>
-            </div>
-          </div>
-        )}
+        {/* No Hands Detected Overlay - REMOVED to avoid irritation */}
+        {/* Removed the "Show your hand to start" message as requested */}
 
         {/* Error Display */}
         {error && !showDemoMode && (

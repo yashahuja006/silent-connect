@@ -54,4 +54,23 @@
     @apply text-lg text-white bg-slate-900/80 px-4 py-2 rounded-lg 
            border border-slate-700/50 backdrop-blur-md;
   }
+
+  /* Animated Cyber Background */
+  .bg-cyber-animated {
+    background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #1e293b);
+    background-size: 400% 400%;
+    animation: cyberGradient 15s ease infinite;
+  }
+}
+
+@keyframes cyberGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
