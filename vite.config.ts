@@ -42,6 +42,9 @@ export default defineConfig({
       }
     })
   ],
+  optimizeDeps: {
+    exclude: ['@mediapipe/hands', '@mediapipe/camera_utils', '@mediapipe/drawing_utils']
+  },
   server: {
     host: true,
     port: 3000
