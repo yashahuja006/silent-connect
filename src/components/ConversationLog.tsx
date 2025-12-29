@@ -42,10 +42,10 @@ const ConversationLog: React.FC<ConversationLogProps> = ({ messages }) => {
   }
 
   return (
-    <div className="bg-slate-800/50 backdrop-blur-md border border-cyan-500/30 rounded-lg p-6 h-full flex flex-col">
+    <div className="dark-glass-panel p-6 h-full flex flex-col holographic-scanline">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-cyan-400">Conversation Log</h2>
-        <div className="text-sm text-gray-400">
+        <h2 className="text-xl font-bold neon-gradient-text cyber-heading">Conversation Log</h2>
+        <div className="text-sm cyber-subtext">
           {messages.length} message{messages.length === 1 ? '' : 's'}
         </div>
       </div>

@@ -29,14 +29,19 @@ export const useSpeechRecognition = (language: string = 'en-US'): SpeechRecognit
       return
     }
 
+    console.log(`🎤 Initializing speech recognition for language: ${language}`)
+
     const recognition = new SpeechRecognition()
     recognition.continuous = true
     recognition.interimResults = true
     recognition.lang = language
 
+    console.log(`🌍 Speech recognition language set to: ${recognition.lang}`)
+
     recognition.onstart = () => {
       setIsListening(true)
       setError(null)
+      console.log(`🎙️ Speech recognition started for ${language}`)
     }
 
     recognition.onresult = (event: any) => {
@@ -55,6 +60,7 @@ export const useSpeechRecognition = (language: string = 'en-US'): SpeechRecognit
       // Only update with final transcript or show interim for live display
       if (finalTranscript) {
         setTranscript(finalTranscript)
+        console.log(`📝 Final transcript (${language}): ${finalTranscript}`)
       } else if (interimTranscript) {
         setTranscript(interimTranscript)
       }
@@ -63,10 +69,18 @@ export const useSpeechRecognition = (language: string = 'en-US'): SpeechRecognit
     recognition.onerror = (event: any) => {
       setError(`Speech recognition error: ${event.error}`)
       setIsListening(false)
+      console.error(`❌ Speech recognition error for ${language}:`, event.error)
     }
 
     recognition.onend = () => {
       setIsListening(false)
+      console.log(`🛑 Speech recognition ended for ${language}`)
+    }
+
+    // Stop previous recognition if it exists
+    if (recognitionRef.current && isListening) {
+      console.log('🔄 Stopping previous recognition to switch language')
+      recognitionRef.current.stop()
     }
 
     recognitionRef.current = recognition
@@ -78,25 +92,29 @@ export const useSpeechRecognition = (language: string = 'en-US'): SpeechRecognit
         recognitionRef.current = null
       }
     }
-  }, [language]) // Add language dependency
+  }, [language]) // Language dependency will reinitialize when changed
 
   const startListening = () => {
     if (!isInitialized.current || !recognitionRef.current) {
       setError('Speech recognition not initialized')
+      console.error('❌ Speech recognition not initialized')
       return
     }
 
     try {
       setTranscript('')
       setError(null)
+      console.log(`🎤 Starting speech recognition for ${language}`)
       recognitionRef.current.start()
     } catch (err) {
       setError(`Failed to start listening: ${err}`)
+      console.error('❌ Failed to start speech recognition:', err)
     }
   }
 
   const stopListening = () => {
     if (recognitionRef.current && isListening) {
+      console.log(`🛑 Stopping speech recognition for ${language}`)
       recognitionRef.current.stop()
     }
   }

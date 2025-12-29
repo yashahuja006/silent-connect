@@ -18,6 +18,18 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected, languag
   const lastSentTranscript = useRef<string>('')
   const transcriptTimeout = useRef<NodeJS.Timeout | null>(null)
 
+  // Restart recognition when language changes
+  useEffect(() => {
+    if (isListening) {
+      console.log(`🔄 Language changed to ${language}, restarting speech recognition`)
+      stopListening()
+      // Longer delay to ensure clean restart
+      setTimeout(() => {
+        startListening()
+      }, 500) // Increased delay for better reliability
+    }
+  }, [language]) // Restart when language changes
+
   useEffect(() => {
     // Only send transcript when it's final and different from last sent
     if (transcript?.trim() && transcript !== lastSentTranscript.current) {
@@ -59,16 +71,21 @@ const VoiceControls: React.FC<VoiceControlsProps> = ({ onSpeechDetected, languag
   }
 
   return (
-    <div className="bg-slate-800/50 backdrop-blur-md border border-cyan-500/30 rounded-lg p-6">
+    <div className="dark-glass-panel p-6 voice-engine-waves">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold text-cyan-400">Voice Engine</h2>
-        <div className="flex items-center space-x-2">
-          <div className={`w-3 h-3 rounded-full ${
-            isListening ? 'bg-red-500 animate-pulse' : 'bg-gray-500'
-          }`} />
-          <span className="text-sm text-gray-300">
-            {isListening ? 'Listening...' : 'Ready'}
-          </span>
+        <h2 className="text-xl font-bold neon-gradient-text cyber-heading">Voice Engine</h2>
+        <div className="flex items-center space-x-4">
+          <div className="text-xs cyber-subtext">
+            Language: {language}
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className={`w-3 h-3 rounded-full ${
+              isListening ? 'bg-red-500 animate-pulse' : 'bg-gray-500'
+            }`} />
+            <span className="text-sm cyber-subtext">
+              {isListening ? 'Listening...' : 'Ready'}
+            </span>
+          </div>
         </div>
       </div>
 

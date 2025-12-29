@@ -1,8 +1,38 @@
 {
   "name": "silent-connect",
   "private": true,
-  "version": "0.0.0",
+  "version": "2.2.1",
+  "description": "Universal AI Platform with high-performance 60-90 FPS voice-controlled hand gesture recognition, IoT control, health analytics, and custom AI training across multiple hackathon tracks",
   "type": "module",
+  "keywords": [
+    "hand-gesture-recognition",
+    "voice-control",
+    "speech-synthesis",
+    "mediapipe",
+    "accessibility",
+    "sign-language",
+    "education",
+    "iot-control",
+    "health-analytics",
+    "pwa",
+    "multi-language",
+    "react",
+    "typescript",
+    "ai",
+    "hackathon",
+    "universal-platform"
+  ],
+  "author": {
+    "name": "Yash Ahuja",
+    "email": "yashahuja006@gmail.com",
+    "url": "https://github.com/yashahuja006"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yashahuja006/silent-connect.git"
+  },
+  "homepage": "https://pr-oject.vercel.app",
+  "license": "MIT",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
