@@ -1,112 +1,154 @@
-# Requirements Document
+# Requirements: Silent-Connect Issue Resolution
 
-## Introduction
+## Overview
 
-Silent-Connect is a bi-directional communication tool for the Deaf/Hard-of-Hearing community that translates Sign Language Gestures to Speech and Voice to Text in real-time. The system operates entirely in the browser using modern web technologies to provide instant, accessible communication.
+This requirements document addresses critical issues preventing the Silent-Connect project from running properly, including dependency conflicts and hydration errors.
 
-## Glossary
+## Critical Issues to Resolve
 
-- **System**: The Silent-Connect web application
-- **Gesture_Recognizer**: The MediaPipe-based component that identifies hand gestures
-- **Voice_Engine**: The Web Speech API component handling text-to-speech and speech-to-text
-- **Demo_Vocabulary**: The initial set of 5 static gestures for prototype demonstration
-- **Confidence_Meter**: Visual indicator showing gesture recognition accuracy
-- **Conversation_Log**: Chat-style history of all communications
+### Issue 1: React 19 Dependency Conflicts
+**Problem**: npm install fails due to peer dependency conflicts between React 19 and lucide-react
+**Impact**: Cannot install required MediaPipe dependencies for gesture recognition
+**Priority**: Critical
 
-## Requirements
+### Issue 2: Hydration Mismatch Errors
+**Problem**: Browser extensions (specifically bis_skin_checked attributes) cause hydration mismatches
+**Impact**: React hydration warnings and potential UI inconsistencies
+**Priority**: High
 
-### Requirement 1: Gesture Recognition System
+## User Stories
 
-**User Story:** As a deaf user, I want to communicate using sign language gestures, so that I can express basic concepts through hand movements.
+### US1: Dependency Resolution
+**As a** developer
+**I want** to install @mediapipe/tasks-vision and react-webcam dependencies
+**So that** I can implement gesture recognition functionality
+**Acceptance Criteria**:
+- All npm dependencies install without conflicts
+- MediaPipe tasks-vision package is available for import
+- React-webcam package is available for import
+- No peer dependency warnings during installation
 
-#### Acceptance Criteria
+### US2: Hydration Error Resolution
+**As a** user
+**I want** the application to load without hydration errors
+**So that** I have a consistent and reliable user experience
+**Acceptance Criteria**:
+- No hydration mismatch warnings in browser console
+- Application renders consistently between server and client
+- Browser extension attributes don't interfere with React hydration
+- suppressHydrationWarning is used appropriately and minimally
 
-1. WHEN the system starts, THE Gesture_Recognizer SHALL initialize the camera and load the MediaPipe hands model
-2. WHEN a user shows their hand to the camera, THE System SHALL detect and track hand landmarks in real-time
-3. WHEN a recognized gesture is held for 1.5 seconds, THE System SHALL trigger the corresponding text-to-speech output
-4. WHEN hand landmarks are detected, THE System SHALL display visual feedback with green skeleton connectors
-5. THE System SHALL recognize exactly 5 distinct static gestures from the Demo_Vocabulary
+### US3: Lucide React Compatibility
+**As a** developer
+**I want** to use Lucide React icons with React 19
+**So that** I can maintain the existing UI design
+**Acceptance Criteria**:
+- Lucide React icons render without errors
+- No peer dependency conflicts with React 19
+- All existing icon usage continues to work
+- Alternative icon solution if Lucide React incompatible
 
-### Requirement 2: Demo Vocabulary Implementation
+## Technical Requirements
 
-**User Story:** As a user, I want a working set of basic gestures, so that I can demonstrate the system's capabilities.
+### TR1: Package Version Compatibility
+- Update lucide-react to a version compatible with React 19, or find alternative
+- Ensure @mediapipe/tasks-vision installs without conflicts
+- Maintain compatibility with existing Radix UI components
+- Use npm overrides or resolutions if necessary
 
-#### Acceptance Criteria
+### TR2: Hydration Error Prevention
+- Implement robust browser extension attribute cleanup
+- Use suppressHydrationWarning only where absolutely necessary
+- Ensure server-side and client-side rendering consistency
+- Add proper error boundaries for hydration issues
 
-1. WHEN a user shows an open palm, THE System SHALL recognize it as "Hello/Hi"
-2. WHEN a user shows a closed fist, THE System SHALL recognize it as "Yes"
-3. WHEN a user shows thumbs down, THE System SHALL recognize it as "No"
-4. WHEN a user shows a peace sign (V), THE System SHALL recognize it as "Peace/Victory"
-5. WHEN a user points index finger up, THE System SHALL recognize it as "I have a question"
+### TR3: MediaPipe Integration Readiness
+- Successfully install @mediapipe/tasks-vision package
+- Verify react-webcam compatibility with current React version
+- Ensure TypeScript types are available for both packages
+- Test basic import functionality
 
-### Requirement 3: Voice-to-Text Engine
+## Implementation Strategy
 
-**User Story:** As a hearing user, I want to speak and have my words displayed as text, so that deaf users can read what I'm saying.
+### Phase 1: Dependency Resolution
+1. Research React 19 compatible version of lucide-react
+2. If no compatible version exists, identify alternative icon library
+3. Update package.json with compatible versions
+4. Use npm overrides for any remaining conflicts
+5. Test installation with clean node_modules
 
-#### Acceptance Criteria
+### Phase 2: Hydration Fix Implementation
+1. Enhance browser extension attribute cleanup script
+2. Add more robust MutationObserver for dynamic attribute removal
+3. Test with common browser extensions (Bitwarden, etc.)
+4. Implement proper error boundaries
 
-1. WHEN the microphone button is activated, THE Voice_Engine SHALL start listening for speech input
-2. WHEN speech is detected, THE System SHALL convert it to text using the Web Speech API
-3. WHEN text is generated from speech, THE System SHALL display it as large, high-contrast text
-4. WHEN the microphone is deactivated, THE Voice_Engine SHALL stop listening
-5. THE System SHALL display converted text in subtitle mode for accessibility
+### Phase 3: MediaPipe Integration Preparation
+1. Install and verify @mediapipe/tasks-vision
+2. Install and verify react-webcam
+3. Create basic import tests
+4. Prepare for gesture recognition implementation
 
-### Requirement 4: Text-to-Speech Engine
+## Success Criteria
 
-**User Story:** As a deaf user, I want my gestures to be spoken aloud, so that hearing users can understand my communication.
+### Functional Requirements
+- [ ] npm install completes without errors or warnings
+- [ ] @mediapipe/tasks-vision imports successfully
+- [ ] react-webcam imports successfully
+- [ ] No hydration errors in browser console
+- [ ] All existing UI components render correctly
+- [ ] Icons display properly throughout the application
 
-#### Acceptance Criteria
+### Non-Functional Requirements
+- [ ] Installation time under 2 minutes
+- [ ] No performance degradation from dependency changes
+- [ ] Backward compatibility with existing components
+- [ ] Clean console output without warnings
 
-1. WHEN a gesture is recognized and held for 1.5 seconds, THE Voice_Engine SHALL speak the corresponding phrase
-2. WHEN text-to-speech is triggered, THE System SHALL use the browser's native speech synthesis
-3. THE System SHALL prevent speech output glitching by requiring gesture hold duration
-4. WHEN speech synthesis is active, THE System SHALL provide visual feedback
-5. THE Voice_Engine SHALL handle speech synthesis errors gracefully
+## Risk Assessment
 
-### Requirement 5: Visual Feedback and Confidence Display
+### High Risk
+- **Lucide React Incompatibility**: May require complete icon library replacement
+- **MediaPipe Conflicts**: Complex dependency tree may cause cascading issues
 
-**User Story:** As a user, I want to see how accurately the system recognizes my gestures, so that I can adjust my hand positioning for better recognition.
+### Medium Risk
+- **Hydration Script Performance**: MutationObserver may impact performance
+- **Type Definition Issues**: New packages may have TypeScript compatibility issues
 
-#### Acceptance Criteria
+### Low Risk
+- **UI Consistency**: Existing components should remain stable
+- **Build Process**: Next.js build should handle dependency updates gracefully
 
-1. WHEN hand landmarks are detected, THE System SHALL draw green skeleton connectors on the video feed
-2. WHEN a gesture is recognized, THE Confidence_Meter SHALL display the recognition percentage
-3. WHEN confidence is below 70%, THE System SHALL not trigger speech output
-4. WHEN no hands are detected, THE System SHALL display appropriate visual feedback
-5. THE System SHALL update visual feedback at 30 frames per second minimum
+## Dependencies
 
-### Requirement 6: User Interface and Experience
+### External Dependencies
+- React 19 ecosystem compatibility
+- MediaPipe package stability
+- Browser extension behavior consistency
 
-**User Story:** As a user, I want an accessible and futuristic interface, so that the application feels modern and is easy to use.
+### Internal Dependencies
+- Existing component architecture
+- Current TypeScript configuration
+- Next.js build configuration
 
-#### Acceptance Criteria
+## Acceptance Testing
 
-1. THE System SHALL use a dark theme with cyan/teal neon accents
-2. WHEN the application loads, THE System SHALL display a split-screen layout with video feed on left and conversation log on right
-3. THE System SHALL display a header showing "Silent-Connect [BETA] | Latency: ~12ms"
-4. WHEN communications occur, THE Conversation_Log SHALL display them in chat bubble style
-5. THE System SHALL use large, high-contrast typography for accessibility
+### Test Cases
+1. **TC1**: Clean npm install from scratch
+2. **TC2**: Import MediaPipe tasks-vision in TypeScript
+3. **TC3**: Import react-webcam in TypeScript
+4. **TC4**: Load application without hydration errors
+5. **TC5**: Verify all icons render correctly
+6. **TC6**: Test with browser extensions installed
 
-### Requirement 7: Real-time Performance
+### Performance Tests
+- Installation time measurement
+- Bundle size impact analysis
+- Runtime performance with new dependencies
 
-**User Story:** As a user, I want instant communication, so that conversations feel natural and responsive.
+## Notes
 
-#### Acceptance Criteria
-
-1. WHEN processing gestures, THE System SHALL maintain sub-50ms latency for recognition
-2. WHEN displaying video feed, THE System SHALL maintain 30fps minimum frame rate
-3. WHEN converting speech to text, THE System SHALL display results within 100ms of speech completion
-4. THE System SHALL process all operations locally without external API calls
-5. WHEN multiple operations occur simultaneously, THE System SHALL maintain performance standards
-
-### Requirement 8: Browser Compatibility and Local Processing
-
-**User Story:** As a user, I want the system to work entirely in my browser, so that I don't need to install additional software or rely on internet connectivity.
-
-#### Acceptance Criteria
-
-1. THE System SHALL run completely client-side using browser APIs
-2. WHEN MediaPipe processes hand tracking, THE System SHALL perform all calculations locally
-3. WHEN speech processing occurs, THE System SHALL use the Web Speech API exclusively
-4. THE System SHALL work in Chrome, Edge, and Firefox browsers
-5. THE System SHALL not require internet connectivity after initial page load
+- This is a prerequisite spec for the main Silent-Connect gesture recognition implementation
+- Focus on minimal changes to maintain stability
+- Document any breaking changes for future reference
+- Consider long-term maintainability of chosen solutions

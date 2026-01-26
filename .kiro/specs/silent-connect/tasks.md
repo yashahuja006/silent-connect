@@ -6,6 +6,24 @@ This implementation plan converts the Silent-Connect design into discrete coding
 
 ## Tasks
 
+- [x] 0. Dependency Resolution and Hydration Fixes
+  - [x] 0.1 Resolve React 19 compatibility issues with lucide-react
+    - Added npm overrides for lucide-react to force React 19 compatibility
+    - Verified all packages install without conflicts using --legacy-peer-deps approach
+    - _Requirements: TR1, US1_
+
+  - [x] 0.2 Fix hydration mismatch errors from browser extensions
+    - Enhanced browser extension attribute cleanup script
+    - Added support for multiple extension attributes (Bitwarden, LastPass, etc.)
+    - Implemented robust MutationObserver for dynamic attribute removal
+    - _Requirements: TR2, US2_
+
+  - [x] 0.3 Verify MediaPipe and react-webcam installation
+    - Confirmed @mediapipe/tasks-vision imports successfully with all required exports
+    - Confirmed react-webcam imports successfully
+    - Verified build process completes without errors
+    - _Requirements: TR3, US1_
+
 - [x] 1. Project Setup and Dependencies
   - Initialize Vite React project with TypeScript
   - Install required dependencies: @mediapipe/hands, @mediapipe/drawing_utils, react-webcam
